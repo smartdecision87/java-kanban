@@ -4,7 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Epic extends Task {
-    private ArrayList<Integer> subTaskIds = new ArrayList<>(100);
+    final private ArrayList<Integer> subTaskIds = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "id=" + getId() +
+                ", name='" + getName() + "'" +
+                ", description='" + getDescription() + "'" +
+                ", subTaskIds='" + subTaskIds + "'" +
+                ", taskStatus='" + getTaskStatus() + "'" +
+                '}';
+    }
 
     public Epic(String name, String description, TaskStatus taskStatus) {
         super(name, description, taskStatus);
@@ -24,6 +35,7 @@ public class Epic extends Task {
 
     public TaskStatus computeEpicStatus(HashMap<Integer, SubTask> subTasks) {
         TaskStatus taskStatus;
+
         if (subTaskIds.isEmpty()) {
             taskStatus = TaskStatus.NEW;
         } else {
