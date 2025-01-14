@@ -6,17 +6,6 @@ import java.util.HashMap;
 public class Epic extends Task {
     final private ArrayList<Integer> subTaskIds = new ArrayList<>();
 
-    @Override
-    public String toString() {
-        return "Epic{" +
-                "id=" + getId() +
-                ", name='" + getName() + "'" +
-                ", description='" + getDescription() + "'" +
-                ", subTaskIds='" + subTaskIds + "'" +
-                ", taskStatus='" + getTaskStatus() + "'" +
-                '}';
-    }
-
     public Epic(String name, String description, TaskStatus taskStatus) {
         super(name, description, taskStatus);
     }
@@ -52,5 +41,16 @@ public class Epic extends Task {
 
     public void deleteAllSubTasks() {
         subTaskIds.clear();
+    }
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "id=" + getId() +
+                ", name='" + getName() + "'" +
+                ", description='" + getDescription() + "'" +
+                ", subTaskIds='" + getAllSubTaskIds() + "'" +
+                ", taskStatus='" + getTaskStatus() + "'" +
+                '}';
     }
 }

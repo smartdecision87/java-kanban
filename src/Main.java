@@ -9,11 +9,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager taskManager = new TaskManager();
+        final TaskManager taskManager = new TaskManager();
         // CREATE TASK
-        Task task = taskManager.createTask(new Task("Erase",
-                                                    "To erase data in Database",
-                                                    TaskStatus.NEW));
+        final Task task = new Task("Erase",
+                                    "To erase data in Database",
+                                    TaskStatus.NEW);
+        taskManager.createTask(task);
         System.out.println("Task is created: " + task.getId());
         System.out.println("Get task: " + task);
         // UPDATE TASK
@@ -25,22 +26,21 @@ public class Main {
         System.out.println(taskManager.getAllTasks());
 
         // CREATE EPIC AND ITS SUBTASKS
-        Epic epic = taskManager.createEpic(new Epic("FOOD BUYING",
-                                                     "To buy food in a supermarket",
-                                                     TaskStatus.NEW
-                                            ));
-        SubTask subTask = taskManager.createSubTask(new SubTask("A call taxi",
-                                                                "A call taxi for getting to supermarket",
-                                                                TaskStatus.NEW
-                                                    ));
-        epic.addSubTask(subTask.getId());
-        subTask.setEpic(epic.getId());
-        SubTask subTask2 = taskManager.createSubTask(new SubTask("Carrot Buying",
-                "To buy a few carrots",
-                TaskStatus.NEW
-        ));
-        epic.addSubTask(subTask2.getId());
-        subTask2.setEpic(epic.getId());
+        final Epic epic = new Epic( "FOOD BUYING",
+                                    "To buy food in a supermarket",
+                                    TaskStatus.NEW
+                                    );
+        taskManager.createEpic(epic);
+        final SubTask subTask = new SubTask("A call taxi",
+                                            "A call taxi for getting to supermarket",
+                                            TaskStatus.NEW
+                                            );
+        taskManager.createSubTask(subTask, epic.getId());
+        final SubTask subTask2 = new SubTask("Carrot Buying",
+                                            "To buy a few carrots",
+                                            TaskStatus.NEW
+                                            );
+        taskManager.createSubTask(subTask2, epic.getId());
         taskManager.updateEpic(epic);
         System.out.println("Get Epic: " + epic);
         System.out.println("Get Subtask: " + subTask);
