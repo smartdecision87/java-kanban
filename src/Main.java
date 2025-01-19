@@ -1,15 +1,19 @@
 import model.Epic;
 import model.SubTask;
-import service.TaskManager;
 import model.Task;
 import model.TaskStatus;
-import java.util.HashMap;
+
+import service.*;
+
 
 public class Main {
 
     public static void main(String[] args) {
 
-        final TaskManager taskManager = new TaskManager();
+//        final HistoryManager historyManager = new InMemoryHistoryManager();
+//        final TaskManager taskManager = new InMemoryTaskManager(historyManager);
+        final TaskManager taskManager = Managers.getDefault();
+
         // CREATE TASK
         final Task task = new Task("Erase",
                                     "To erase data in Database",
@@ -22,7 +26,7 @@ public class Main {
         taskManager.updateTask(task);
         System.out.println("Update task: " + task);
         // DELETE TASK
-        taskManager.deleteTask(task.getId());
+//       taskManager.deleteTask(task.getId());
         System.out.println(taskManager.getAllTasks());
 
         // CREATE EPIC AND ITS SUBTASKS
@@ -57,9 +61,29 @@ public class Main {
         System.out.println("Get Subtask2: " + subTask2);
 
         // Delete all subtask of epic and check epicstatus
-        taskManager.deleteSubTask(subTask.getId());
-        taskManager.deleteSubTask(subTask2.getId());
+        //taskManager.deleteSubTask(subTask.getId());
+        //taskManager.deleteSubTask(subTask2.getId());
         System.out.println(taskManager.getAllEpics());
         System.out.println(taskManager.getAllSubTasks());
+
+        taskManager.getTask(1);
+        taskManager.getEpic(2);
+        taskManager.getEpic(2);
+        taskManager.getSubTask(4);
+        taskManager.getSubTask(3);
+        taskManager.getEpic(2);
+        taskManager.getTask(1);
+        taskManager.getSubTask(3);
+        taskManager.getSubTask(3);
+        taskManager.getTask(1);
+        taskManager.getSubTask(4);
+        taskManager.getTask(1);
+        taskManager.getEpic(2);
+//        taskManager.getEpic(10);
+
+        int i = 1;
+        for (Task t : taskManager.getHistory()) {
+            System.out.println(i++ + " " + t);
+        }
     }
 }
