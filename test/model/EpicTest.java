@@ -17,7 +17,7 @@ class EpicTest {
 
     @BeforeEach
     void initEpic() {
-       epic = new Epic( "FOOD BUYING", "To buy food in a supermarket", TaskStatus.NEW);
+       epic = new Epic( "FOOD BUYING", "To buy food in a supermarket");
        subTask1 = new SubTask("A call taxi","A call taxi for getting to supermarket", TaskStatus.NEW);
        subTask2 = new SubTask("Carrot Buying","To buy a few carrots", TaskStatus.NEW);
        subTask1.setId(1);
@@ -62,12 +62,12 @@ class EpicTest {
         epic.addSubTask(subTask2.getId());
         epic.addSubTask(subTask1.getId());
         taskStatus = epic.computeEpicStatus(subTasks);
-        assertEquals(TaskStatus.IN_PROGRESS, taskStatus, "Статус эпика не соответствует состоянию IN_PROGRESS.");
+        assertEquals(TaskStatus.NEW, taskStatus, "Статус эпика не соответствует состоянию IN_PROGRESS.");
 
         subTask1.setTaskStatus(TaskStatus.DONE);
-        subTask1.setTaskStatus(TaskStatus.DONE);
+        subTask2.setTaskStatus(TaskStatus.DONE);
         taskStatus = epic.computeEpicStatus(subTasks);
-        assertEquals(TaskStatus.IN_PROGRESS, taskStatus, "Статус эпика не соответствует состоянию DONE.");
+        assertEquals(TaskStatus.DONE, taskStatus, "Статус эпика не соответствует состоянию DONE.");
     }
 
     @Test

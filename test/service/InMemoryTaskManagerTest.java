@@ -23,8 +23,7 @@ class InMemoryTaskManagerTest {
         taskManager = new InMemoryTaskManager(historyManager);
         task = new Task("A new task", "To do the new task", TaskStatus.NEW);
         epic = new Epic( "FOOD BUYING",
-                "To buy food in a supermarket",
-                TaskStatus.NEW
+                "To buy food in a supermarket"
         );
         subTask = new SubTask("A call taxi",
                 "A call taxi for getting to supermarket",
@@ -94,7 +93,7 @@ class InMemoryTaskManagerTest {
     void shouldCreateEpic() {
         Epic epicFromTaskManager = taskManager.createEpic(epic);
         assertEquals(epic.getId(), epicFromTaskManager.getId(), "Идентификаиторы задач не должны различаться!");
-        assertEquals(epic.getName(), epicFromTaskManager.getName(), "Именя задач не должны различаться.");
+        assertEquals(epic.getName(), epicFromTaskManager.getName(), "Имена задач не должны различаться.");
         assertEquals(epic.getTaskStatus(), epicFromTaskManager.getTaskStatus(), "Статусы задач " +
                 "не должны различатсья.");
         assertArrayEquals(epic.getAllSubTaskIds().toArray(), epicFromTaskManager.getAllSubTaskIds().toArray(),
@@ -108,7 +107,7 @@ class InMemoryTaskManagerTest {
         taskManager.updateEpic(epic);
         Epic epicFromTaskManager = taskManager.getEpic(epic.getId());
         assertEquals(epic.getId(), epicFromTaskManager.getId(), "Идентификаиторы задач не должны различаться!");
-        assertEquals(epic.getName(), epicFromTaskManager.getName(), "Именя задач не должны различаться.");
+        assertEquals(epic.getName(), epicFromTaskManager.getName(), "Имена задач не должны различаться.");
         assertEquals(epic.getTaskStatus(), epicFromTaskManager.getTaskStatus(), "Статусы задач " +
                 "не должны различатсья.");
         assertArrayEquals(epic.getAllSubTaskIds().toArray(), epicFromTaskManager.getAllSubTaskIds().toArray(),
@@ -134,8 +133,7 @@ class InMemoryTaskManagerTest {
     void shouldDeleteAllEpics() {
         taskManager.createEpic(epic);
         Epic epic2 = new Epic( "CAR BUYING",
-                "To buy an used car",
-                TaskStatus.NEW
+                "To buy an used car"
         );
         taskManager.createEpic(epic2);
         assertEquals(2, taskManager.getAllEpics().size(), "Кол-во эпиков в трекере должно быть " +

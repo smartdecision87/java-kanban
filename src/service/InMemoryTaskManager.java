@@ -15,6 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager historyManager;
     private static final int HISTORY_MAX_SIZE = 10;
     public static final String RED = "\033[0;31m";
+    public static final String GREEN = "\033[0;32m";
     public static final String RESET = "\033[0m";
 
     public InMemoryTaskManager(HistoryManager historyManager) {
@@ -142,9 +143,9 @@ public class InMemoryTaskManager implements TaskManager {
         subTask.setEpicId(epicId);
         subTasks.put(subTaskId, subTask);
         Epic epic = epics.get(epicId);
-        epic.setTaskStatus(epic.computeEpicStatus(subTasks));
         epic.addSubTask(subTaskId);
         epics.put(epicId, epic);
+        epic.setTaskStatus(epic.computeEpicStatus(subTasks));
         return subTask;
     }
 
@@ -156,7 +157,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         int epicId = subTask.getEpicId();
         Epic epic = epics.get(epicId);
-        epic.computeEpicStatus(subTasks);
+        epic.setTaskStatus(epic.computeEpicStatus(subTasks));
     }
 
     @Override

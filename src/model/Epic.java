@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Epic extends Task {
-    final private ArrayList<Integer> subTaskIds = new ArrayList<>();
+    private final ArrayList<Integer> subTaskIds = new ArrayList<>();
 
-    public Epic(String name, String description, TaskStatus taskStatus) {
-        super(name, description, taskStatus);
+    public Epic(String name, String description) {
+        super(name, description, TaskStatus.NEW);
     }
 
     public ArrayList<Integer> getAllSubTaskIds() {
@@ -23,20 +23,26 @@ public class Epic extends Task {
     }
 
     public TaskStatus computeEpicStatus(HashMap<Integer, SubTask> subTasks) {
-        TaskStatus taskStatus;
 
         if (subTaskIds.isEmpty()) {
-            taskStatus = TaskStatus.NEW;
-        } else {
-            taskStatus = TaskStatus.DONE;
-            for (Integer subTaskId : subTaskIds) {
-                if (subTasks.get(subTaskId).getTaskStatus() != TaskStatus.DONE) {
-                    taskStatus = TaskStatus.IN_PROGRESS;
-                    break;
-                }
+            return TaskStatus.NEW;
+        }
+
+        int statusNewCounter = 0;
+        int statusDoneCounter = 0;
+
+        for (int subTaskId : subTaskIds) {
+            if (subTasks.get(subTaskId).getTaskStatus() == TaskStatus.NEW) {
+                statusNewCounter++;
+            }
+            if (subTasks.get(subTaskId).getTaskStatus() == TaskStatus.DONE) {
+                statusDoneCounter++;
             }
         }
-        return taskStatus;
+
+        if (statusNewCounter == subTaskIds.size()) return TaskStatus.NEW;
+        if (statusDoneCounter == subTaskIds.size()) return TaskStatus.DONE;
+        return TaskStatus.IN_PROGRESS;
     }
 
     public void deleteAllSubTasks() {
