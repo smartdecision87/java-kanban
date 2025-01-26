@@ -13,7 +13,6 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, SubTask> subTasks;
     private int id;
     private final HistoryManager historyManager;
-    private static final int HISTORY_MAX_SIZE = 10;
     public static final String RED = "\033[0;31m";
     public static final String GREEN = "\033[0;32m";
     public static final String RESET = "\033[0m";
@@ -26,7 +25,7 @@ public class InMemoryTaskManager implements TaskManager {
         id = 0;
     }
 
-    int generateId() {
+    private int generateId() {
         return ++id;
     }
 
@@ -53,9 +52,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Задача с ID=" + taskId + " отстутствует в трекере задач!");
             return null;
         }
-        historyManager.add(tasks.get(taskId));
-//        updateHistory(tasks.get(taskId));
-        return tasks.get(taskId);
+        historyManager.add(task);
+        return task;
     }
 
     @Override
@@ -97,9 +95,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println(RED + "Эпик с ID=" + epicId + " отстутствует в трекере задач!" + RESET);
             return null;
         }
-        historyManager.add(epics.get(epicId));
-//        updateHistory(epics.get(epicId));
-        return epics.get(epicId);
+        historyManager.add(epic);
+        return epic;
     }
 
     @Override
@@ -168,9 +165,8 @@ public class InMemoryTaskManager implements TaskManager {
             System.out.println("Подзадача с ID=" + subTaskId + " отстутствует в трекере задач!");
             return null;
         }
-        historyManager.add(subTasks.get(subTaskId));
-//        updateHistory(subTasks.get(subTaskId));
-        return subTasks.get(subTaskId);
+        historyManager.add(subTask);
+        return subTask;
     }
 
     @Override
