@@ -31,7 +31,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        return taskHistory;
+        return List.copyOf(taskHistory);
     }
 
 }

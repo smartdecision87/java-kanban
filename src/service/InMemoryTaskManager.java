@@ -6,6 +6,7 @@ import java.util.List;
 import model.Task;
 import model.Epic;
 import model.SubTask;
+import model.TaskStatus;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks;
@@ -124,7 +125,6 @@ public class InMemoryTaskManager implements TaskManager {
     public List<SubTask> getEpicAllSubTasks(int epicId) {
         ArrayList<SubTask> epicSubTasks = new ArrayList<>();
 
-        Epic epic = epics.get(epicId);
         for (SubTask subTask : subTasks.values()) {
             if (subTask.getEpicId() == epicId) {
                 epicSubTasks.add(subTask);
@@ -141,7 +141,6 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.put(subTaskId, subTask);
         Epic epic = epics.get(epicId);
         epic.addSubTask(subTaskId);
-        epics.put(epicId, epic);
         epic.setTaskStatus(epic.computeEpicStatus(subTasks));
         return subTask;
     }
@@ -189,7 +188,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteAllSubTasks() {
         for (Epic epic : epics.values()) {
             epic.deleteAllSubTasks();
-            epic.computeEpicStatus(subTasks);
+            epic.setTaskStatus(TaskStatus.NEW);
         }
         subTasks.clear();
     }
