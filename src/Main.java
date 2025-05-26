@@ -28,7 +28,7 @@ public class Main {
         System.out.println(taskManager.getAllTasks());
 
         // CREATE EPIC AND ITS SUBTASKS
-        final Epic epic = new Epic( "FOOD BUYING",
+        final Epic epic = new Epic("FOOD BUYING",
                                     "To buy food in a supermarket"
                                     );
         taskManager.createEpic(epic);
