@@ -32,10 +32,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public void remove(int Id) {
-        Node node = taskHistory.get(Id);
-        removeNode(taskHistory.get(Id));
-        taskHistory.remove(Id);
+    public void remove(int id) {
+        Node node = taskHistory.get(id);
+        removeNode(taskHistory.get(id));
+        taskHistory.remove(id);
     }
 
     private Node linkLast(Task task) {
