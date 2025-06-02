@@ -2,7 +2,6 @@ package service;
 
 
 import model.Task;
-import model.Node;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -10,9 +9,19 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-      private final Map<Integer, Node> taskHistory;
-      private Node firstNode;
-      private Node currentNode;
+    private final Map<Integer, Node> taskHistory;
+    private Node firstNode;
+    private Node currentNode;
+
+    class Node {
+        public Node prevNode;
+        public Node nextNode;
+        public Task task;
+
+        public Node(Task task) {
+            this.task = task;
+        }
+    }
 
     public InMemoryHistoryManager() {
         taskHistory = new HashMap<>();
