@@ -9,11 +9,11 @@ import model.SubTask;
 import model.TaskStatus;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final HashMap<Integer, Task> tasks;
-    private final HashMap<Integer, Epic> epics;
-    private final HashMap<Integer, SubTask> subTasks;
-    private int id;
-    private final HistoryManager historyManager;
+    protected final HashMap<Integer, Task> tasks;
+    protected final HashMap<Integer, Epic> epics;
+    protected final HashMap<Integer, SubTask> subTasks;
+    protected int id;
+    protected final HistoryManager historyManager;
     public static final String RED = "\033[0;31m";
     public static final String GREEN = "\033[0;32m";
     public static final String RESET = "\033[0m";
