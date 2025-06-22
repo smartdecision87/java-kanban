@@ -1,6 +1,7 @@
 package service;
 
 import model.*;
+import exception.ManagerSaveException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,9 +34,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
             2,EPIC,Epic2,DONE,Description epic2,
             3,SUBTASK,Sub Task2,DONE,Description sub task3,2
         */
-        try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(autosave, StandardCharsets.UTF_8))) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(autosave, StandardCharsets.UTF_8))) {
             bufferedWriter.write("id,type,name,status,description,epic\n");
-
             for (Task task : getAllTasks()) {
                 bufferedWriter.write(toString(task) + "\n");
             }
@@ -45,10 +45,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
             for (SubTask subTask : getAllSubTasks()) {
                 bufferedWriter.write(toString(subTask) + "\n");
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при сохранении данных в файл: " + autosave.getAbsolutePath());
         }
-
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
@@ -222,10 +221,4 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
         save();
     }
 
-}
-
-class ManagerSaveException extends RuntimeException {
-    ManagerSaveException(String message) {
-        super(message);
-    }
 }
