@@ -13,11 +13,11 @@ import java.util.*;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager  {
-    private final File autosave;
+    private final File autoSaveFile;
 
-    public FileBackedTaskManager(HistoryManager historyManager, File autosave) {
+    public FileBackedTaskManager(HistoryManager historyManager, File file) {
         super(historyManager);
-        this.autosave = autosave;
+        autoSaveFile = file;
     }
 
     public FileBackedTaskManager(File file) {
@@ -34,7 +34,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
             2,EPIC,Epic2,DONE,Description epic2,
             3,SUBTASK,Sub Task2,DONE,Description sub task3,2
         */
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(autosave, StandardCharsets.UTF_8))) {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(autoSaveFile, StandardCharsets.UTF_8))) {
             bufferedWriter.write("id,type,name,status,description,epic\n");
             for (Task task : getAllTasks()) {
                 bufferedWriter.write(toString(task) + "\n");
@@ -46,7 +46,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
                 bufferedWriter.write(toString(subTask) + "\n");
             }
         } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка при сохранении данных в файл: " + autosave.getAbsolutePath());
+            throw new ManagerSaveException("Ошибка при сохранении данных в файл: " + autoSaveFile.getAbsolutePath());
         }
     }
 
@@ -197,6 +197,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
         save();
     }
 
+    @Override
     public SubTask createSubTask(SubTask subTask, int epicId) {
         subTask = super.createSubTask(subTask, epicId);
         save();

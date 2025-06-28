@@ -14,11 +14,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FileBackedTaskManagerTest {
     private File tempFile;
     private FileBackedTaskManager taskManager;
+    private Task task, task2, task3;
+    private Epic epic;
+    private SubTask subTask, subTask2;
 
     @BeforeEach
     void init() throws IOException {
         tempFile = File.createTempFile("tasks", ".csv");
         taskManager = new FileBackedTaskManager(tempFile);
+        // Создаем задачи для сохранения
+        task = new Task("New Task", "Task Description", TaskStatus.NEW);
+        task2 = new Task("New Task2", "Task2 Description", TaskStatus.IN_PROGRESS);
+        task3 = new Task("New Task3", "Task3 Description", TaskStatus.DONE);
+        epic = new Epic("New Epic", "Epic Description");
+        subTask = new SubTask("New SubTask", "SubTask Description", TaskStatus.IN_PROGRESS);
+        subTask2 = new SubTask("New SubTask2", "SubTask2 Description", TaskStatus.NEW);
     }
 
     @AfterEach
@@ -29,40 +39,16 @@ class FileBackedTaskManagerTest {
     }
 
     @Test
-    void shouldLoadTasksFromFile() throws IOException {
-        // Создаем задачи для сохранения
-        Task task = new Task("New Task", "Task Description", TaskStatus.NEW);
-        Task task2 = new Task("New Task2", "Task2 Description", TaskStatus.IN_PROGRESS);
-        Task task3 = new Task("New Task3", "Task3 Description", TaskStatus.DONE);
-        Epic epic = new Epic("New Epic", "Epic Description");
-        SubTask subTask = new SubTask("New SubTask", "SubTask Description", TaskStatus.IN_PROGRESS);
-        SubTask subTask2 = new SubTask("New SubTask2", "SubTask2 Description", TaskStatus.NEW);
-
-        // Сохраняем задачи
+    void shouldSaveAndLoadTasks() throws IOException {
         Task createdTask = taskManager.createTask(task);
         Task createdTask2 = taskManager.createTask(task2);
         Task createdTask3 = taskManager.createTask(task3);
-        Epic createdEpic = taskManager.createEpic(epic);
-        SubTask createdSubTask = taskManager.createSubTask(subTask, createdEpic.getId());
-        SubTask createdSubTask2 = taskManager.createSubTask(subTask2, createdEpic.getId());
 
-        // Загружаем из файла
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
-        // Проверяем, что задачи загрузились корректно
         Task loadedTask = loadedManager.getTask(createdTask.getId());
         Task loadedTask2 = loadedManager.getTask(createdTask2.getId());
         Task loadedTask3 = loadedManager.getTask(createdTask3.getId());
-        Epic loadedEpic = loadedManager.getEpic(createdEpic.getId());
-        SubTask loadedSubTask = loadedManager.getSubTask(createdSubTask.getId());
-        SubTask loadedSubTask2 = loadedManager.getSubTask(createdSubTask2.getId());
-
-        assertNotNull(loadedTask);
-        assertNotNull(loadedTask2);
-        assertNotNull(loadedTask3);
-        assertNotNull(loadedEpic);
-        assertNotNull(loadedSubTask);
-        assertNotNull(loadedSubTask2);
 
         // проверка задачи 1
         assertEquals(createdTask.getId(), loadedTask.getId(), "Идентификаторы задач не должны различаться!");
@@ -81,6 +67,19 @@ class FileBackedTaskManagerTest {
         assertEquals(createdTask3.getName(), loadedTask3.getName(), "Имена задач не должны различаться.");
         assertEquals(createdTask3.getTaskStatus(), loadedTask3.getTaskStatus(),
                 "Статусы задач не должны различатсья.");
+    }
+
+    @Test
+    void shouldSaveAndLoadEpicWithSubTasks() throws IOException {
+        Epic createdEpic = taskManager.createEpic(epic);
+        SubTask createdSubTask = taskManager.createSubTask(subTask, createdEpic.getId());
+        SubTask createdSubTask2 = taskManager.createSubTask(subTask2, createdEpic.getId());
+
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+        Epic loadedEpic = loadedManager.getEpic(createdEpic.getId());
+        SubTask loadedSubTask = loadedManager.getSubTask(createdSubTask.getId());
+        SubTask loadedSubTask2 = loadedManager.getSubTask(createdSubTask2.getId());
 
         // проверка эпика
         assertEquals(createdEpic.getId(), loadedEpic.getId(), "Идентификаторы эпиков не должны различаться!");
@@ -107,6 +106,24 @@ class FileBackedTaskManagerTest {
                 "Статусы задач не должны различатсья.");
         assertEquals(createdSubTask2.getEpicId(), loadedSubTask2.getEpicId(),
                 "Идентификаторы эпиков для подзадач не должны различаться!");
+    }
+
+
+    @Test
+    void shouldTasksBeNotNullAfterLoad() {
+        Task createdTask = taskManager.createTask(task);
+        Epic createdEpic = taskManager.createEpic(epic);
+        SubTask createdSubTask = taskManager.createSubTask(subTask, createdEpic.getId());
+
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+        Task loadedTask = loadedManager.getTask(createdTask.getId());
+        Epic loadedEpic = loadedManager.getEpic(createdEpic.getId());
+        SubTask loadedSubTask = loadedManager.getSubTask(createdSubTask.getId());
+
+        assertNotNull(loadedTask, "Задача должна быть загружена!");
+        assertNotNull(loadedEpic, "Эпик должен быть загружен!");
+        assertNotNull(loadedSubTask, "Подзадача должна быть загружена!");
     }
 
     @Test
