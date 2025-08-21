@@ -175,9 +175,10 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void shouldThrowExceptionWhenFileInvalid() {
-        File invalidFile = new File("TestFile.csv");
+        File invalidFile = new File("/boot/EFI/testFile43.csv");
+        FileBackedTaskManager manager = new FileBackedTaskManager(invalidFile);
         assertThrows(ManagerSaveException.class,
-                () -> new FileBackedTaskManager(invalidFile),
+                () -> manager.save(),
                 "Должно выбрасываться исключение при работе с несуществующим файлом");
     }
 

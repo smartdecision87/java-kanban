@@ -50,7 +50,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
     @Test
     void shouldGetTasksConfluence() {
         Task task2 = new Task("A new task2", "To do the new task2", TaskStatus.NEW, Duration.ofMinutes(20),
-                LocalDateTime.now().minusMinutes(15));
+                LocalDateTime.now().minusMinutes(20));
         taskManager.createTask(task2);
         boolean isConfluence = taskManager.checkConfluence(task);
         assertTrue(isConfluence, "Задачи и подзадачи должны пересекаться!");

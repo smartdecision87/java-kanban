@@ -83,10 +83,6 @@ public class Epic extends Task {
     public LocalDateTime computeEndTime(Map<Integer, SubTask> subTasks) throws RuntimeException {
         LocalDateTime maxEndTimeSubtask = null;
 
-        if (subTaskIds.isEmpty()) {
-            throw new RuntimeException("Не существует ни одной подзадачи!");
-        }
-
         if (subTaskIds.size() != 1) {
             for (int i = 0; i < subTaskIds.size() - 1; i++) {
                 LocalDateTime endTimeCurrentSubtask = subTasks.get(subTaskIds.get(i)).getEndTime();
