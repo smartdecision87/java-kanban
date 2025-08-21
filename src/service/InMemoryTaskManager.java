@@ -1,8 +1,8 @@
 package service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.*;
+
 import model.Task;
 import model.Epic;
 import model.SubTask;
@@ -12,6 +12,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks;
     protected final HashMap<Integer, Epic> epics;
     protected final HashMap<Integer, SubTask> subTasks;
+    protected final TreeSet<Task> sortedTasks;
     protected int id;
     protected final HistoryManager historyManager;
     public static final String RED = "\033[0;31m";
@@ -22,6 +23,7 @@ public class InMemoryTaskManager implements TaskManager {
         tasks = new HashMap<>();
         epics = new HashMap<>();
         subTasks = new HashMap<>();
+        sortedTasks = new TreeSet<>();
         this.historyManager = historyManager;
         id = 0;
     }
@@ -31,8 +33,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task createTask(Task task) {
+    public Task createTask(Task task) throws RuntimeException {
         int taskId = generateId();
+        if (!checkConfluence(task)) {
+            tasks.put(taskId, task);
+        } else {
+            throw new RuntimeException("Невозможно добавить подзадачу в менеджере задач. Задача имеет пересечение " +
+                    "с другими задачами или подзадачами.");
+        }
         task.setId(taskId);
         tasks.put(taskId, task);
         return task;
@@ -40,6 +48,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
+        if (!checkConfluence(task)) {
+            tasks.put(task.getId(), task);
+        } else {
+            throw new RuntimeException("Невозможно обновить подзадачу в менеджере задач. Задача имеет пересечение " +
+                    "с другими задачами или подзадачами.");
+        }
+
         if (tasks.get(task.getId()) != null) {
             tasks.put(task.getId(), task);
         }
@@ -111,7 +126,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Epic> getAllEpics() {
-        return new ArrayList<Epic>(epics.values());
+//        return new ArrayList<Epic>(epics.values());
+        return epics.values().stream().toList();
     }
 
     @Override
@@ -123,37 +139,49 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<SubTask> getEpicAllSubTasks(int epicId) {
-        ArrayList<SubTask> epicSubTasks = new ArrayList<>();
-
-        for (SubTask subTask : subTasks.values()) {
-            if (subTask.getEpicId() == epicId) {
-                epicSubTasks.add(subTask);
-            }
-        }
-        return epicSubTasks;
+        return subTasks.values().stream()
+                .filter(s -> s.getEpicId() == epicId)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public SubTask createSubTask(SubTask subTask, int epicId) {
+    public SubTask createSubTask(SubTask subTask, int epicId) throws RuntimeException {
         int subTaskId = generateId();
+        if (!checkConfluence(subTask)) {
+            subTasks.put(subTaskId, subTask);
+        } else {
+            throw new RuntimeException("Невозможно добавить подзадачу в менеджер задач. Подзадача имеет пересечение " +
+                    "с другими задачами или подзадачами.");
+        }
         subTask.setId(subTaskId);
         subTask.setEpicId(epicId);
         subTasks.put(subTaskId, subTask);
         Epic epic = epics.get(epicId);
         epic.addSubTask(subTaskId);
+        if (epic.getAllSubTaskIds().size() == 1) {
+            epic.setStartTime(subTask.getStartTime());
+        }
+        epic.setEndTime(epic.computeEndTime(subTasks));
         epic.setTaskStatus(epic.computeEpicStatus(subTasks));
         return subTask;
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
+    public void updateSubTask(SubTask subTask) throws RuntimeException {
         int subTaskId = subTask.getId();
-        if (subTasks.get(subTaskId) != null) {
+        if (subTasks.get(subTaskId) == null) {
+            throw new RuntimeException("Невозможно обновить подзадачу! Подзадача отсутствует в менеджере задач!");
+        }
+        if (!checkConfluence(subTask)) {
             subTasks.put(subTaskId, subTask);
+        } else {
+            throw new RuntimeException("Невозможно обновить подзадачу в менеджере задач. Подзадача пересекается " +
+                    "с другими задачами или подзадачами.");
         }
         int epicId = subTask.getEpicId();
         Epic epic = epics.get(epicId);
         epic.setTaskStatus(epic.computeEpicStatus(subTasks));
+        epic.setEndTime(epic.computeEndTime(subTasks));
     }
 
     @Override
@@ -176,6 +204,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.deleteSubTask(subTaskId);
             subTasks.remove(subTaskId);
             epic.computeEpicStatus(subTasks);
+            epic.computeEndTime(subTasks);
         }
     }
 
@@ -196,5 +225,24 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public boolean checkConfluence(Task task) {
+        // проверяем на пересечение по времени с другими задачами и подзадачами
+        return Stream.concat(tasks.values().stream(), subTasks.values().stream())
+                .filter(t -> t.getStartTime() != null
+                            && t.getEndTime() != null
+                            && t.getId() != task.getId()
+                )
+                .anyMatch(t -> t.getStartTime().isBefore(task.getEndTime())
+                        && t.getEndTime().isAfter(task.getStartTime()));
+    }
+
+    public Set<Task> getPrioritizedTasks() {
+        return Stream.concat(tasks.values().stream(), subTasks.values().stream())
+                .filter(t -> t.getStartTime() != null)
+                .sorted()
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 }

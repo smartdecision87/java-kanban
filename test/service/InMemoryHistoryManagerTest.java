@@ -1,5 +1,7 @@
 package service;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,13 +19,15 @@ class InMemoryHistoryManagerTest {
     HistoryManager historyManager;
     Task newTask, newTask2, newTask3;
 
-
     @BeforeEach
     void init() {
         historyManager = new InMemoryHistoryManager();
-        newTask = new Task("The first task", "To do the first task", TaskStatus.NEW);
-        newTask2 = new Task("The second task", "To do the second task", TaskStatus.NEW);
-        newTask3 = new Task("The third task", "To do the third task", TaskStatus.NEW);
+        newTask = new Task("The first task", "To do the first task",
+                            TaskStatus.NEW, Duration.ofMinutes(3));
+        newTask2 = new Task("The second task", "To do the second task",
+                            TaskStatus.NEW, Duration.ofMinutes(2));
+        newTask3 = new Task("The third task", "To do the third task",
+                            TaskStatus.NEW, Duration.ofMinutes(5));
         newTask.setId(0);
         newTask2.setId(1);
         newTask3.setId(2);
@@ -81,5 +85,69 @@ class InMemoryHistoryManagerTest {
             historyManager.add(newTask3);
             assertArrayEquals(tasksList.toArray(), historyManager.getHistory().toArray());
         }
+    }
+
+    @Test
+    void shouldHandleEmptyHistory() {
+        HistoryManager manager = new InMemoryHistoryManager();
+        assertTrue(manager.getHistory().isEmpty(),
+                "История должна быть пустой при создании");
+    }
+
+    @Test
+    void shouldRemoveFromHistoryBeginning() {
+        HistoryManager manager = new InMemoryHistoryManager();
+        Task task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
+        task1.setId(1);
+        task2.setId(2);
+
+        manager.add(task1);
+        manager.add(task2);
+        manager.remove(task1.getId());
+
+        assertEquals(1, manager.getHistory().size(),
+                "В истории должна остаться одна задача");
+        assertEquals(task2, manager.getHistory().get(0),
+                "Оставшаяся задача должна быть task2");
+    }
+
+    @Test
+    void shouldRemoveFromHistoryMiddle() {
+        HistoryManager manager = new InMemoryHistoryManager();
+        Task task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
+        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW, Duration.ofMinutes(30));
+        task1.setId(1);
+        task2.setId(2);
+        task3.setId(3);
+
+        manager.add(task1);
+        manager.add(task2);
+        manager.add(task3);
+        manager.remove(task2.getId());
+
+        assertEquals(2, manager.getHistory().size(),
+                "В истории должно остаться две задачи");
+        assertEquals(List.of(task1, task3), manager.getHistory(),
+                "Оставшиеся задачи должны быть task1 и task3");
+    }
+
+    @Test
+    void shouldRemoveFromHistoryEnd() {
+        HistoryManager manager = new InMemoryHistoryManager();
+        Task task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
+        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
+        task1.setId(1);
+        task2.setId(2);
+
+        manager.add(task1);
+        manager.add(task2);
+        manager.remove(task2.getId());
+
+        assertEquals(1, manager.getHistory().size(),
+                "В истории должна остаться одна задача");
+        assertEquals(task1, manager.getHistory().get(0),
+                "Оставшаяся задача должна быть task1");
     }
 }

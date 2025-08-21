@@ -1,17 +1,32 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task> {
     private int id;
-    private String name;
-    private String description;
-    private TaskStatus taskStatus;
+    protected String name;
+    protected String description;
+    protected TaskStatus taskStatus;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(String name, String description, TaskStatus taskStatus) {
+    public Task(String name, String description, TaskStatus taskStatus, Duration duration) {
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
+        this.duration = duration;
+        //this.startTime = LocalDateTime.now();
+    }
+
+    public Task(String name, String description, TaskStatus taskStatus, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.taskStatus = taskStatus;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public int getId() {
@@ -46,6 +61,26 @@ public class Task {
         this.description = description;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null) {
+            return null;
+        }
+        return startTime.plusMinutes(duration.toMinutes());
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -67,5 +102,13 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, taskStatus);
+    }
+
+    @Override
+    public int compareTo(Task otherTask) {
+        if (this == otherTask) return 0;
+        if (otherTask == null) return 1;
+        if (this.getStartTime() == null || otherTask.getStartTime() == null) return 0;
+        return this.getStartTime().compareTo(otherTask.getStartTime());
     }
 }
