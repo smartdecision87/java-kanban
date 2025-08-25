@@ -82,7 +82,7 @@ public class Epic extends Task {
             }
         } else {
             startTime = subTasks.get(subTaskIds.get(0)).getStartTime();
-        }        
+        }
     }
 
     public void computeEndTime(Map<Integer, SubTask> subTasks) /*throws RuntimeException*/ {
