@@ -45,9 +45,6 @@ class EpicTest {
     @DisplayName("Добавляем два подзадачи в эпик, и удаляем одну из них")
     @Test
     void shouldDeleteSubTask() {
-    /*    epic.addSubTask(subTask1.getId());
-        epic.deleteSubTask(subTask1.getId());
-    */
         epic.addSubTask(subTask1.getId());
         epic.addSubTask(subTask2.getId());
         assertEquals(2, epic.getAllSubTaskIds().size(),

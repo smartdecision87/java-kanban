@@ -17,7 +17,6 @@ public class Task implements Comparable<Task> {
         this.description = description;
         this.taskStatus = taskStatus;
         this.duration = duration;
-        //this.startTime = LocalDateTime.now();
     }
 
     public Task(String name, String description, TaskStatus taskStatus, Duration duration, LocalDateTime startTime) {

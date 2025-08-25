@@ -149,7 +149,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         LocalDateTime.now().plusMinutes(10)), createdEpic.getId());
         SubTask subTask2 = taskManager.createSubTask(
                 new SubTask("Sub2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(15),
-                LocalDateTime.now().plusMinutes(20)), createdEpic.getId());
+                LocalDateTime.now().plusMinutes(20)),
+                createdEpic.getId());
 
         assertEquals(TaskStatus.NEW, createdEpic.getTaskStatus(),
                 "Статус эпика должен быть NEW, когда все подзадачи NEW");

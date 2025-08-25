@@ -51,6 +51,4 @@ public interface TaskManager {
 
     boolean checkConfluence(Task task);
 
-    Set<Task> getPrioritizedTasks();
-
 }

@@ -126,7 +126,6 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Epic> getAllEpics() {
-//        return new ArrayList<Epic>(epics.values());
         return epics.values().stream().toList();
     }
 
@@ -158,10 +157,9 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.put(subTaskId, subTask);
         Epic epic = epics.get(epicId);
         epic.addSubTask(subTaskId);
-        if (epic.getAllSubTaskIds().size() == 1) {
-            epic.setStartTime(subTask.getStartTime());
-        }
-        epic.setEndTime(epic.computeEndTime(subTasks));
+        epic.computeStartTime(subTasks);
+        epic.computeDuration(subTasks);
+        epic.computeEndTime(subTasks);
         epic.setTaskStatus(epic.computeEpicStatus(subTasks));
         return subTask;
     }
@@ -181,7 +179,9 @@ public class InMemoryTaskManager implements TaskManager {
         int epicId = subTask.getEpicId();
         Epic epic = epics.get(epicId);
         epic.setTaskStatus(epic.computeEpicStatus(subTasks));
-        epic.setEndTime(epic.computeEndTime(subTasks));
+        epic.computeStartTime(subTasks);
+        epic.computeDuration(subTasks);
+        epic.computeEndTime(subTasks);
     }
 
     @Override
@@ -227,7 +227,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    @Override
     public boolean checkConfluence(Task task) {
         // проверяем на пересечение по времени с другими задачами и подзадачами
         return Stream.concat(tasks.values().stream(), subTasks.values().stream())

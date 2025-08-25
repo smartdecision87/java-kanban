@@ -19,18 +19,18 @@ public class Epic extends Task {
         return subTaskIds;
     }
 
-    public Duration computeDuration(HashMap<Integer, SubTask> subTasks) {
-        Duration epicDuration = Duration.ZERO;
+    public void computeDuration(HashMap<Integer, SubTask> subTasks) {
+        Duration maxDuration = Duration.ZERO;
 
         if (subTaskIds.isEmpty()) {
             throw new RuntimeException("Не существует ни одной подзадачи!");
         }
 
         for (Integer id: subTasks.keySet()) {
-            epicDuration = epicDuration.plusMinutes(subTasks.get(id).getDuration().toMinutes());
+            maxDuration = duration.plusMinutes(subTasks.get(id).getDuration().toMinutes());
         }
 
-        return epicDuration;
+        duration = maxDuration;
     }
 
     public void addSubTask(int subTaskId) {
@@ -72,15 +72,20 @@ public class Epic extends Task {
         return endTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
+    public void computeStartTime(Map<Integer, SubTask> subTasks) {
+        if (subTaskIds.size() != 1) {
+            for (int i = 0; i < subTaskIds.size() - 1; i++) {
+                LocalDateTime startTimeCurrentSubtask = subTasks.get(subTaskIds.get(i)).getStartTime();
+                LocalDateTime startTimeNextSubtask = subTasks.get(subTaskIds.get(i + 1)).getStartTime();
+                startTime = startTimeCurrentSubtask.isBefore(startTimeNextSubtask)
+                        ? startTimeCurrentSubtask : startTimeNextSubtask;
+            }
+        } else {
+            startTime = subTasks.get(subTaskIds.get(0)).getStartTime();
+        }        
     }
 
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public LocalDateTime computeEndTime(Map<Integer, SubTask> subTasks) throws RuntimeException {
+    public void computeEndTime(Map<Integer, SubTask> subTasks) /*throws RuntimeException*/ {
         LocalDateTime maxEndTimeSubtask = null;
 
         if (subTaskIds.size() != 1) {
@@ -94,8 +99,9 @@ public class Epic extends Task {
             maxEndTimeSubtask = subTasks.get(subTaskIds.get(0)).getEndTime();
         }
 
-        return maxEndTimeSubtask;
+        endTime = maxEndTimeSubtask;
     }
+
 
     @Override
     public String toString() {

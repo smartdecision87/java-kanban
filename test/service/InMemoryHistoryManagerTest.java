@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 class InMemoryHistoryManagerTest {
     HistoryManager historyManager;
     Task newTask, newTask2, newTask3;
+    Task task1, task2, task3;
 
     @BeforeEach
     void init() {
@@ -26,6 +27,13 @@ class InMemoryHistoryManagerTest {
         newTask.setId(0);
         newTask2.setId(1);
         newTask3.setId(2);
+
+        task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
+        task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
+        task3 = new Task("Task3", "Desc3", TaskStatus.NEW, Duration.ofMinutes(30));
+        task1.setId(3);
+        task2.setId(4);
+        task3.setId(5);
     }
 
     @Test
@@ -84,65 +92,44 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldHandleEmptyHistory() {
-        HistoryManager manager = new InMemoryHistoryManager();
-        assertTrue(manager.getHistory().isEmpty(),
+        assertTrue(historyManager.getHistory().isEmpty(),
                 "История должна быть пустой при создании");
     }
 
     @Test
     void shouldRemoveFromHistoryBeginning() {
-        HistoryManager manager = new InMemoryHistoryManager();
-        Task task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
-        task1.setId(1);
-        task2.setId(2);
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.remove(task1.getId());
 
-        manager.add(task1);
-        manager.add(task2);
-        manager.remove(task1.getId());
-
-        assertEquals(1, manager.getHistory().size(),
+        assertEquals(1, historyManager.getHistory().size(),
                 "В истории должна остаться одна задача");
-        assertEquals(task2, manager.getHistory().get(0),
+        assertEquals(task2, historyManager.getHistory().get(0),
                 "Оставшаяся задача должна быть task2");
     }
 
     @Test
     void shouldRemoveFromHistoryMiddle() {
-        HistoryManager manager = new InMemoryHistoryManager();
-        Task task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
-        Task task3 = new Task("Task3", "Desc3", TaskStatus.NEW, Duration.ofMinutes(30));
-        task1.setId(1);
-        task2.setId(2);
-        task3.setId(3);
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
+        historyManager.remove(task2.getId());
 
-        manager.add(task1);
-        manager.add(task2);
-        manager.add(task3);
-        manager.remove(task2.getId());
-
-        assertEquals(2, manager.getHistory().size(),
+        assertEquals(2, historyManager.getHistory().size(),
                 "В истории должно остаться две задачи");
-        assertEquals(List.of(task1, task3), manager.getHistory(),
+        assertEquals(List.of(task1, task3), historyManager.getHistory(),
                 "Оставшиеся задачи должны быть task1 и task3");
     }
 
     @Test
     void shouldRemoveFromHistoryEnd() {
-        HistoryManager manager = new InMemoryHistoryManager();
-        Task task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
-        Task task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
-        task1.setId(1);
-        task2.setId(2);
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.remove(task2.getId());
 
-        manager.add(task1);
-        manager.add(task2);
-        manager.remove(task2.getId());
-
-        assertEquals(1, manager.getHistory().size(),
+        assertEquals(1, historyManager.getHistory().size(),
                 "В истории должна остаться одна задача");
-        assertEquals(task1, manager.getHistory().get(0),
+        assertEquals(task1, historyManager.getHistory().get(0),
                 "Оставшаяся задача должна быть task1");
     }
 }

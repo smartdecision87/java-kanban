@@ -9,7 +9,6 @@ public class SubTask extends Task {
 
     public SubTask(String name, String description, TaskStatus taskStatus, Duration duration) {
         super(name, description, taskStatus, duration);
-        this.startTime = LocalDateTime.now();
     }
 
     public SubTask(String name, String description, TaskStatus taskStatus, Duration duration, LocalDateTime startTime) {
