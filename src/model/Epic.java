@@ -22,10 +22,6 @@ public class Epic extends Task {
     public void computeDuration(HashMap<Integer, SubTask> subTasks) {
         Duration maxDuration = Duration.ZERO;
 
-        if (subTaskIds.isEmpty()) {
-            throw new RuntimeException("Не существует ни одной подзадачи!");
-        }
-
         for (Integer id: subTasks.keySet()) {
             maxDuration = maxDuration.plusMinutes(subTasks.get(id).getDuration().toMinutes());
         }
