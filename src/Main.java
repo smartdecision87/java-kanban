@@ -5,6 +5,8 @@ import model.TaskStatus;
 
 import service.*;
 
+import java.time.Duration;
+
 
 public class Main {
 
@@ -15,7 +17,8 @@ public class Main {
         // CREATE TASK
         final Task task = new Task("Erase",
                                     "To erase data in Database",
-                                    TaskStatus.NEW);
+                                    TaskStatus.NEW,
+                                    Duration.ofMinutes(10));
         taskManager.createTask(task);
         System.out.println("Task is created: " + task.getId());
         System.out.println("Get task: " + task);
@@ -34,12 +37,14 @@ public class Main {
         taskManager.createEpic(epic);
         final SubTask subTask = new SubTask("A call taxi",
                                             "A call taxi for getting to supermarket",
-                                            TaskStatus.NEW
+                                            TaskStatus.NEW,
+                                            Duration.ofMinutes(12)
                                             );
         taskManager.createSubTask(subTask, epic.getId());
         final SubTask subTask2 = new SubTask("Carrot Buying",
                                             "To buy a few carrots",
-                                            TaskStatus.NEW
+                                            TaskStatus.NEW,
+                                            Duration.ofMinutes(14)
                                             );
         taskManager.createSubTask(subTask2, epic.getId());
         System.out.println("Get Epic: " + epic);

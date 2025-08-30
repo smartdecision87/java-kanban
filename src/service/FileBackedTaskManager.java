@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -25,17 +27,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
     }
 
     public void save() {
-        /*
-            TO-DO:
-            To save to CSV-file.
-            Example:
-            id,type,name,status,description,epic
-            1,TASK,Task1,NEW,Description task1,
-            2,EPIC,Epic2,DONE,Description epic2,
-            3,SUBTASK,Sub Task2,DONE,Description sub task3,2
-        */
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(autoSaveFile, StandardCharsets.UTF_8))) {
-            bufferedWriter.write("id,type,name,status,description,epic\n");
+            bufferedWriter.write("id,type,name,status,description,epic,duration,startTime,endTime\n");
             for (Task task : getAllTasks()) {
                 bufferedWriter.write(toString(task) + "\n");
             }
@@ -86,6 +79,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
                         manager.subTasks.put(id, subTask);
                         Epic epic = manager.epics.get(epicId);
                         epic.addSubTask(id);
+                        manager.updateSubTask(subTask);
                     }
                 }
             }
@@ -98,43 +92,58 @@ public class FileBackedTaskManager extends InMemoryTaskManager  {
 
     public String toString(Task task) {
         String epicIdStr = "";
+        String startTimeStr = "";
+        String endTimeStr = "";
 
         if (task instanceof SubTask) {
             epicIdStr = String.format("%d", ((SubTask) task).getEpicId());
         }
 
-        return String.format("%d;%s;%s;%s;%s;%s",
+        if (task.getStartTime() != null) {
+            startTimeStr = task.getStartTime().toString();
+        }
+
+        if (task.getEndTime() != null) {
+            endTimeStr = task.getEndTime().toString();
+        }
+
+        return String.format("%d;%s;%s;%s;%s;%s;%s;%s;%s",
                 task.getId(),
                 getTypeTask(task),
                 task.getName(),
                 task.getTaskStatus(),
                 task.getDescription(),
-                epicIdStr
+                epicIdStr,
+                task.getDuration().toString(),
+                startTimeStr,
+                endTimeStr
         );
 
     }
 
     private static List<Object> fromString(String line) {
-        // id,type,name,status,description,epic
+        // id,type,name,status,description,epic,duration,startTime,endTime
         final String[] valuesFromLine = line.split(";");
         int id = Integer.parseInt(valuesFromLine[0]);
         String taskType = valuesFromLine[1];
         String name = valuesFromLine[2];
-        TaskStatus status = valuesFromLine[3].equals("NEW") ? TaskStatus.NEW :
-                valuesFromLine[3].equals("IN_PROGRESS") ? TaskStatus.IN_PROGRESS : TaskStatus.DONE;
+        TaskStatus status = TaskStatus.valueOf(valuesFromLine[3]);
         String description = valuesFromLine[4];
+        Duration duration = Duration.parse(valuesFromLine[6]);
+        LocalDateTime startTime = LocalDateTime.parse((CharSequence) valuesFromLine[7]);
 
         List<Object> result = null;
         switch (taskType) {
             case "Task" -> {
-                result = List.of(taskType, id, new Task(name, description, status));
+                result = List.of(taskType, id, new Task(name, description, status, duration, startTime));
             }
             case "Epic" -> {
-                result = List.of(taskType, id, new Epic(name, description), status);
+                LocalDateTime endTime = LocalDateTime.parse((CharSequence) valuesFromLine[8]);
+                result = List.of(taskType, id, new Epic(name, description), status, duration, startTime, endTime);
             }
             case "SubTask" -> {
                 int epicId = Integer.parseInt(valuesFromLine[5]);
-                result =  List.of(taskType, id, new SubTask(name, description, status), epicId);
+                result =  List.of(taskType, id, new SubTask(name, description, status, duration, startTime), epicId);
             }
         }
 

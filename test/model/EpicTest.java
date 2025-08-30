@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -18,8 +19,12 @@ class EpicTest {
     @BeforeEach
     void initEpic() {
        epic = new Epic( "FOOD BUYING", "To buy food in a supermarket");
-       subTask1 = new SubTask("A call taxi","A call taxi for getting to supermarket", TaskStatus.NEW);
-       subTask2 = new SubTask("Carrot Buying","To buy a few carrots", TaskStatus.NEW);
+       subTask1 = new SubTask("A call taxi","A call taxi for getting to supermarket", TaskStatus.NEW,
+                                Duration.ofMinutes(3)
+       );
+       subTask2 = new SubTask("Carrot Buying","To buy a few carrots", TaskStatus.NEW,
+                                Duration.ofMinutes(10)
+       );
        subTask1.setId(1);
        subTask2.setId(2);
     }
@@ -40,9 +45,6 @@ class EpicTest {
     @DisplayName("Добавляем два подзадачи в эпик, и удаляем одну из них")
     @Test
     void shouldDeleteSubTask() {
-    /*    epic.addSubTask(subTask1.getId());
-        epic.deleteSubTask(subTask1.getId());
-        ass*/
         epic.addSubTask(subTask1.getId());
         epic.addSubTask(subTask2.getId());
         assertEquals(2, epic.getAllSubTaskIds().size(),

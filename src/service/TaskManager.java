@@ -48,4 +48,6 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
+    boolean checkConfluence(Task task);
+
 }
