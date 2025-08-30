@@ -27,10 +27,14 @@ public class Epic extends Task {
         }
 
         for (Integer id: subTasks.keySet()) {
-            maxDuration = duration.plusMinutes(subTasks.get(id).getDuration().toMinutes());
+            maxDuration = maxDuration.plusMinutes(subTasks.get(id).getDuration().toMinutes());
         }
 
         duration = maxDuration;
+
+        /*
+            Метод проверен, перерасчет продолжительности эпика происходит после добавления и удаления подзадачи.
+         */
     }
 
     public void addSubTask(int subTaskId) {
@@ -66,6 +70,9 @@ public class Epic extends Task {
 
     public void deleteAllSubTasks() {
         subTaskIds.clear();
+        duration = Duration.ZERO;
+        startTime = null;
+        endTime = null;
     }
 
     public LocalDateTime getEndTime()  {
@@ -73,35 +80,22 @@ public class Epic extends Task {
     }
 
     public void computeStartTime(Map<Integer, SubTask> subTasks) {
-        if (subTaskIds.size() != 1) {
-            for (int i = 0; i < subTaskIds.size() - 1; i++) {
-                LocalDateTime startTimeCurrentSubtask = subTasks.get(subTaskIds.get(i)).getStartTime();
-                LocalDateTime startTimeNextSubtask = subTasks.get(subTaskIds.get(i + 1)).getStartTime();
-                startTime = startTimeCurrentSubtask.isBefore(startTimeNextSubtask)
-                        ? startTimeCurrentSubtask : startTimeNextSubtask;
-            }
-        } else {
-            startTime = subTasks.get(subTaskIds.get(0)).getStartTime();
-        }
+        startTime = subTaskIds.stream()
+                .map(subTasks::get)
+                .filter(s -> s.getStartTime() != null)
+                .map(SubTask::getStartTime)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
-    public void computeEndTime(Map<Integer, SubTask> subTasks) /*throws RuntimeException*/ {
-        LocalDateTime maxEndTimeSubtask = null;
-
-        if (subTaskIds.size() != 1) {
-            for (int i = 0; i < subTaskIds.size() - 1; i++) {
-                LocalDateTime endTimeCurrentSubtask = subTasks.get(subTaskIds.get(i)).getEndTime();
-                LocalDateTime endTimeNextSubtask = subTasks.get(subTaskIds.get(i + 1)).getEndTime();
-                maxEndTimeSubtask = endTimeCurrentSubtask.isAfter(endTimeNextSubtask)
-                        ? endTimeCurrentSubtask : endTimeNextSubtask;
-            }
-        } else {
-            maxEndTimeSubtask = subTasks.get(subTaskIds.get(0)).getEndTime();
-        }
-
-        endTime = maxEndTimeSubtask;
+    public void computeEndTime(Map<Integer, SubTask> subTasks) {
+        endTime = subTaskIds.stream()
+                .map(subTasks::get)
+                .filter(s -> s.getEndTime() != null)
+                .map(SubTask::getEndTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
     }
-
 
     @Override
     public String toString() {

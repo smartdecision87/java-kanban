@@ -146,9 +146,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask createSubTask(SubTask subTask, int epicId) throws RuntimeException {
         int subTaskId = generateId();
-        if (!checkConfluence(subTask)) {
-            subTasks.put(subTaskId, subTask);
-        } else {
+        if (checkConfluence(subTask)) {
             throw new RuntimeException("Невозможно добавить подзадачу в менеджер задач. Подзадача имеет пересечение " +
                     "с другими задачами или подзадачами.");
         }
@@ -204,6 +202,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.deleteSubTask(subTaskId);
             subTasks.remove(subTaskId);
             epic.computeEpicStatus(subTasks);
+            epic.computeStartTime(subTasks);
+            epic.computeDuration(subTasks);
             epic.computeEndTime(subTasks);
         }
     }
@@ -229,7 +229,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public boolean checkConfluence(Task task) {
         // проверяем на пересечение по времени с другими задачами и подзадачами
-        return Stream.concat(tasks.values().stream(), subTasks.values().stream())
+          return Stream.concat(tasks.values().stream(), subTasks.values().stream())
                 .filter(t -> t.getStartTime() != null
                             && t.getEndTime() != null
                             && t.getId() != task.getId()

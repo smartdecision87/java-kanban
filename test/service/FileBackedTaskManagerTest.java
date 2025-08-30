@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private File tempFile;
     private Task task2, task3;
-    private SubTask subTask2;
+    private SubTask subTask2, subTask3;
 
     @BeforeEach
     void init() throws IOException {
@@ -36,6 +36,8 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
                 Duration.ofMinutes(10), LocalDateTime.now());
         subTask2 = new SubTask("New SubTask2", "SubTask2 Description", TaskStatus.NEW,
                 Duration.ofMinutes(7), LocalDateTime.now().plusMinutes(10));
+        subTask3 = new SubTask("New SubTask3", "SubTask3 Description", TaskStatus.NEW,
+                Duration.ofMinutes(3), LocalDateTime.now().plusMinutes(17));
     }
 
     @AfterEach
@@ -93,7 +95,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         Epic createdEpic = taskManager.createEpic(epic);
         SubTask createdSubTask = taskManager.createSubTask(subTask, createdEpic.getId());
         SubTask createdSubTask2 = taskManager.createSubTask(subTask2, createdEpic.getId());
-
+        SubTask createdSubTask3 = taskManager.createSubTask(subTask3, createdEpic.getId());
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
 
         Epic loadedEpic = loadedManager.getEpic(createdEpic.getId());
