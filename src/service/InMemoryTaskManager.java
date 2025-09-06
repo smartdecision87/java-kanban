@@ -3,6 +3,8 @@ package service;
 import java.util.*;
 import java.util.stream.*;
 
+import exception.NotFoundException;
+import exception.OverlapsException;
 import model.Task;
 import model.Epic;
 import model.SubTask;
@@ -33,12 +35,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task createTask(Task task) throws RuntimeException {
+    public Task createTask(Task task) throws OverlapsException {
         int taskId = generateId();
         if (!checkConfluence(task)) {
             tasks.put(taskId, task);
         } else {
-            throw new RuntimeException("Невозможно добавить подзадачу в менеджере задач. Задача имеет пересечение " +
+            throw new OverlapsException("Невозможно добавить подзадачу в менеджере задач. Задача имеет пересечение " +
                     "с другими задачами или подзадачами.");
         }
         task.setId(taskId);
@@ -47,11 +49,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws OverlapsException {
         if (!checkConfluence(task)) {
             tasks.put(task.getId(), task);
         } else {
-            throw new RuntimeException("Невозможно обновить подзадачу в менеджере задач. Задача имеет пересечение " +
+            throw new OverlapsException("Невозможно обновить подзадачу в менеджере задач. Задача имеет пересечение " +
                     "с другими задачами или подзадачами.");
         }
 
@@ -61,12 +63,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTask(int taskId) {
+    public Task getTask(int taskId) throws NotFoundException {
         Task task = tasks.get(taskId);
 
         if (task == null) {
             System.out.println("Задача с ID=" + taskId + " отстутствует в трекере задач!");
-            return null;
+            throw new NotFoundException("Задача не найдена!");
         }
         historyManager.add(task);
         return task;
@@ -104,12 +106,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpic(int epicId) {
+    public Epic getEpic(int epicId) throws NotFoundException {
         Epic epic = epics.get(epicId);
 
         if (epic == null) {
             System.out.println(RED + "Эпик с ID=" + epicId + " отстутствует в трекере задач!" + RESET);
-            return null;
+            throw new NotFoundException("Эпик не найден!");
         }
         historyManager.add(epic);
         return epic;
@@ -137,17 +139,20 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<SubTask> getEpicAllSubTasks(int epicId) {
+    public List<SubTask> getEpicAllSubTasks(int epicId) throws NotFoundException {
+        if (!epics.containsKey(epicId)) {
+            throw new NotFoundException("epicNotFound");
+        }
         return subTasks.values().stream()
                 .filter(s -> s.getEpicId() == epicId)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public SubTask createSubTask(SubTask subTask, int epicId) throws RuntimeException {
+    public SubTask createSubTask(SubTask subTask, int epicId) throws OverlapsException {
         int subTaskId = generateId();
         if (checkConfluence(subTask)) {
-            throw new RuntimeException("Невозможно добавить подзадачу в менеджер задач. Подзадача имеет пересечение " +
+            throw new OverlapsException("Невозможно добавить подзадачу в менеджер задач. Подзадача имеет пересечение " +
                     "с другими задачами или подзадачами.");
         }
         subTask.setId(subTaskId);
@@ -163,15 +168,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) throws RuntimeException {
+    public void updateSubTask(SubTask subTask) throws NotFoundException, OverlapsException {
         int subTaskId = subTask.getId();
         if (subTasks.get(subTaskId) == null) {
-            throw new RuntimeException("Невозможно обновить подзадачу! Подзадача отсутствует в менеджере задач!");
+            throw new NotFoundException("Невозможно обновить подзадачу! Подзадача отсутствует в менеджере задач!");
         }
         if (!checkConfluence(subTask)) {
             subTasks.put(subTaskId, subTask);
         } else {
-            throw new RuntimeException("Невозможно обновить подзадачу в менеджере задач. Подзадача пересекается " +
+            throw new OverlapsException("Невозможно обновить подзадачу в менеджере задач. Подзадача пересекается " +
                     "с другими задачами или подзадачами.");
         }
         int epicId = subTask.getEpicId();
@@ -183,12 +188,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask getSubTask(int subTaskId) {
+    public SubTask getSubTask(int subTaskId) throws NotFoundException {
         SubTask subTask = subTasks.get(subTaskId);
 
         if (subTask == null) {
             System.out.println("Подзадача с ID=" + subTaskId + " отстутствует в трекере задач!");
-            return null;
+            throw new NotFoundException("Подзадача не найдена!");
         }
         historyManager.add(subTask);
         return subTask;

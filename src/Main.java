@@ -9,7 +9,6 @@ import java.time.Duration;
 
 
 public class Main {
-
     public static void main(String[] args) {
 
         final TaskManager taskManager = Managers.getDefault();

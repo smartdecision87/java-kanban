@@ -11,7 +11,7 @@ public class Epic extends Task {
     private LocalDateTime endTime;
 
     public Epic(String name, String description) {
-        super(name, description, TaskStatus.NEW, Duration.ZERO);
+        super(name, description, TaskStatus.NEW, Duration.ZERO, LocalDateTime.now());
         endTime = LocalDateTime.now();
     }
 
@@ -27,10 +27,6 @@ public class Epic extends Task {
         }
 
         duration = maxDuration;
-
-        /*
-            Метод проверен, перерасчет продолжительности эпика происходит после добавления и удаления подзадачи.
-         */
     }
 
     public void addSubTask(int subTaskId) {
