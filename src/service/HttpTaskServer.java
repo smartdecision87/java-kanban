@@ -81,8 +81,8 @@ public class HttpTaskServer {
                 Duration.ofMinutes(15),
                 LocalDateTime.now().plusMinutes(10));
         taskManager.createTask(task2);
-        
-        final Epic epic = new Epic( "FOOD BUYING","To buy food in a supermarket");
+
+        final Epic epic = new Epic("FOOD BUYING","To buy food in a supermarket");
         taskManager.createEpic(epic);
 
         final SubTask subTask = new SubTask("A call taxi",
@@ -93,7 +93,7 @@ public class HttpTaskServer {
         );
         taskManager.createSubTask(subTask, epic.getId());
 
-        final Epic epic2 = new Epic( "CAR BUYING","To buy a car");
+        final Epic epic2 = new Epic("CAR BUYING","To buy a car");
         taskManager.createEpic(epic2);
 
         final SubTask subTask2 = new SubTask("A call taxi",
@@ -221,17 +221,17 @@ public class HttpTaskServer {
         public void handle(HttpExchange httpExchange) throws IOException {
             System.out.println("Началась обработка /subtasks запроса от клиента.");
             String responseMethod = httpExchange.getRequestMethod();
-            String URIPath = httpExchange.getRequestURI().getPath();
+            String uriPath = httpExchange.getRequestURI().getPath();
             String stringNumber = null;
             SubTask subtaskCreated;
-            if (URIPath.split("/").length == 3) {
-                stringNumber = URIPath.split("/")[2];
+            if (uriPath.split("/").length == 3) {
+                stringNumber = uriPath.split("/")[2];
             }
             int id = -1;
             if (stringNumber != null) {
                 Pattern pattern = Pattern.compile("^[1-9][0-9]*$");
                 if (pattern.matcher(stringNumber).find()) {
-                    id = Integer.parseInt(URIPath.split("/")[2]);
+                    id = Integer.parseInt(uriPath.split("/")[2]);
                 } else {
                     sendInvalidQuery(httpExchange, "Некорректно задан идентификатор подзадачи!\n");
                     return;
@@ -287,18 +287,18 @@ public class HttpTaskServer {
         public void handle(HttpExchange httpExchange) throws IOException {
             System.out.println("Началась обработка /epics запроса от клиента.");
             String responseMethod = httpExchange.getRequestMethod();
-            String URIPath = httpExchange.getRequestURI().getPath();
+            String uriPath = httpExchange.getRequestURI().getPath();
             String stringNumber = null;
             String stringSubtasks = null;
             Epic epicCreated;
-            if (URIPath.split("/").length >= 3) {
-                stringNumber = URIPath.split("/")[2];
+            if (uriPath.split("/").length >= 3) {
+                stringNumber = uriPath.split("/")[2];
             }
             int id = -1;
             if (stringNumber != null) {
                 Pattern pattern = Pattern.compile("^[1-9][0-9]*$");
                 if (pattern.matcher(stringNumber).find()) {
-                    id = Integer.parseInt(URIPath.split("/")[2]);
+                    id = Integer.parseInt(uriPath.split("/")[2]);
                 } else {
                     sendInvalidQuery(httpExchange, "Некорректно задан идентификатор подзадачи!\n");
                     return;
@@ -313,9 +313,9 @@ public class HttpTaskServer {
                         return;
                     }
                     Epic epic = taskManager.getEpic(id);
-                    int splitURIPathLength = URIPath.split("/").length;
+                    int splitURIPathLength = uriPath.split("/").length;
                     if (splitURIPathLength == 4) {
-                        stringSubtasks = URIPath.split("/")[3];
+                        stringSubtasks = uriPath.split("/")[3];
                         if (!"subtasks".equals(stringSubtasks)) {
                             sendInvalidQuery(httpExchange, "Некорректно задан идентификатор эпика!\n");
                         } else {
