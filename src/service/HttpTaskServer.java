@@ -81,10 +81,8 @@ public class HttpTaskServer {
                 Duration.ofMinutes(15),
                 LocalDateTime.now().plusMinutes(10));
         taskManager.createTask(task2);
-
-        final Epic epic = new Epic( "FOOD BUYING",
-                "To buy food in a supermarket"
-        );
+        
+        final Epic epic = new Epic( "FOOD BUYING","To buy food in a supermarket");
         taskManager.createEpic(epic);
 
         final SubTask subTask = new SubTask("A call taxi",
@@ -95,9 +93,7 @@ public class HttpTaskServer {
         );
         taskManager.createSubTask(subTask, epic.getId());
 
-        final Epic epic2 = new Epic( "CAR BUYING",
-                "To buy a car"
-        );
+        final Epic epic2 = new Epic( "CAR BUYING","To buy a car");
         taskManager.createEpic(epic2);
 
         final SubTask subTask2 = new SubTask("A call taxi",
@@ -159,17 +155,17 @@ public class HttpTaskServer {
         public void handle(HttpExchange httpExchange) throws IOException {
             System.out.println("Началась обработка /tasks запроса от клиента.");
             String responseMethod = httpExchange.getRequestMethod();
-            String URIPath = httpExchange.getRequestURI().getPath();
+            String uriPath = httpExchange.getRequestURI().getPath();
             String stringNumber = null;
             Task taskCreated;
-            if (URIPath.split("/").length == 3) {
-                stringNumber = URIPath.split("/")[2];
+            if (uriPath.split("/").length == 3) {
+                stringNumber = uriPath.split("/")[2];
             }
             int id = -1;
             if (stringNumber != null) {
                 Pattern pattern = Pattern.compile("^[1-9][0-9]*$");
                 if (pattern.matcher(stringNumber).find()) {
-                    id = Integer.parseInt(URIPath.split("/")[2]);
+                    id = Integer.parseInt(uriPath.split("/")[2]);
                 } else {
                     sendInvalidQuery(httpExchange, "Некорректно задан идентификатор задачи!\n");
                     return;
