@@ -373,7 +373,7 @@ public class HttpTaskServer {
     }
 
     public void stopServer() {
-        httpServer.stop(1);
+        httpServer.stop(0);
         System.out.println("Сервер остановлен");
     }
 

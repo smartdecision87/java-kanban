@@ -1,5 +1,6 @@
 package service;
 
+import exception.NotFoundException;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void shouldDeleteTask() {
         Task createdTask = taskManager.createTask(task);
         taskManager.deleteTask(createdTask.getId());
-        assertNull(taskManager.getTask(createdTask.getId()), "Задача должна быть удалена");
+        assertThrows(NotFoundException.class,
+                () -> taskManager.getTask(createdTask.getId()),
+                "Должно выбрасываться исключение при работе с несуществующей задачей");
     }
 
     @Test
@@ -102,7 +105,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void shouldDeleteEpic() {
         Epic createdEpic = taskManager.createEpic(epic);
         taskManager.deleteEpic(createdEpic.getId());
-        assertNull(taskManager.getEpic(createdEpic.getId()), "Эпик должен быть удален");
+        assertThrows(NotFoundException.class,
+                () -> taskManager.getEpic(createdEpic.getId()),
+                "Должно выбрасываться исключение при работе с несуществующим эпиком");
     }
 
     @Test
@@ -129,7 +134,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Epic createdEpic = taskManager.createEpic(epic);
         SubTask createdSubTask = taskManager.createSubTask(subTask, createdEpic.getId());
         taskManager.deleteSubTask(createdSubTask.getId());
-        assertNull(taskManager.getSubTask(createdSubTask.getId()), "Подзадача должна быть удалена");
+        assertThrows(NotFoundException.class,
+                () -> taskManager.getSubTask(createdSubTask.getId()),
+                "Должно выбрасываться исключение при работе с несуществующей подзадачей");
     }
 
     @Test

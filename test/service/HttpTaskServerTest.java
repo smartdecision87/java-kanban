@@ -89,8 +89,10 @@ class HttpTaskServerTest {
     }
 
     @AfterEach
-    public void shutDown() {
-        httpTaskServer.stopServer();
+    public void stopServer() {
+        if (httpTaskServer != null) {
+            httpTaskServer.stopServer();
+        }
     }
 
     protected Task createTestTask() {
@@ -184,9 +186,12 @@ class HttpTaskServerTest {
 
     @Test
     void shouldDeleteTask() throws IOException, InterruptedException {
-        Task task = manager.createTask(createTestTask());
+        Task newTask = manager.createTask(new Task("Test Task", "Test Description",
+                TaskStatus.NEW, Duration.ofMinutes(30),
+                LocalDateTime.now().plusHours(1)));
+        int taskId = newTask.getId();
 
-        URI url = URI.create("http://localhost:8082/tasks/" + task.getId());
+        URI url = URI.create("http://localhost:8082/tasks/" + taskId);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .DELETE()
@@ -196,7 +201,7 @@ class HttpTaskServerTest {
 
         assertEquals(200, response.statusCode());
         assertThrows(NotFoundException.class,
-                () -> manager.getTask(epic.getId()),
+                () -> manager.getTask(taskId),
                 "Должно выбрасываться исключение при работе с несуществующим эпиком");
     }
 
@@ -297,9 +302,10 @@ class HttpTaskServerTest {
 
     @Test
     void shouldDeleteEpic() throws IOException, InterruptedException {
-        Epic epic = manager.createEpic(new Epic("Test Epic", "Test Description"));
+        Epic newEpic = manager.createEpic(new Epic("Test Epic", "Test Description"));
+        int epicId = newEpic.getId();
 
-        URI url = URI.create("http://localhost:8082/epics/" + epic.getId());
+        URI url = URI.create("http://localhost:8082/epics/" + epicId);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .DELETE()
@@ -309,7 +315,7 @@ class HttpTaskServerTest {
 
         assertEquals(200, response.statusCode());
         assertThrows(NotFoundException.class,
-                () -> manager.getEpic(epic.getId()),
+                () -> manager.getEpic(epicId),
                 "Должно выбрасываться исключение при работе с несуществующим эпиком");
     }
 
@@ -401,7 +407,9 @@ class HttpTaskServerTest {
 
     @Test
     void shouldDeleteSubtask() throws IOException, InterruptedException {
-        URI url = URI.create("http://localhost:8082/subtasks/" + subTask.getId());
+        int subTaskId = subTask.getId();
+        URI url = URI.create("http://localhost:8082/subtasks/" + subTaskId);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .DELETE()
@@ -410,7 +418,7 @@ class HttpTaskServerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
         assertThrows(NotFoundException.class,
-                () -> manager.getSubTask(subTask.getId()),
+                () -> manager.getSubTask(subTaskId),
                 "Должно выбрасываться исключение при работе с несуществующей подзадачей");
     }
 
