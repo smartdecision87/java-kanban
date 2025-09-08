@@ -43,6 +43,7 @@ class HttpTaskServerTest {
         manager.deleteAllTasks();
         manager.deleteAllEpics();
         manager.deleteAllSubTasks();
+        manager.getHistory().clear();
         client = HttpClient.newHttpClient();
 
         task = new Task("Erase",
