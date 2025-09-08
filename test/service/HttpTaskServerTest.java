@@ -139,10 +139,10 @@ class HttpTaskServerTest {
 
     @Test
     void shouldCreateTask() throws IOException, InterruptedException {
-        Task task = new Task("Test Task", "Test Description",
+        Task newTask = new Task("Test Task", "Test Description",
                 TaskStatus.NEW, Duration.ofMinutes(30),
                 LocalDateTime.now().plusHours(1));
-        String taskJson = gson.toJson(task);
+        String taskJson = gson.toJson(newTask);
 
         URI url = URI.create("http://localhost:8082/tasks");
         HttpRequest request = HttpRequest.newBuilder()
@@ -426,6 +426,7 @@ class HttpTaskServerTest {
 
     // Tests for /history and /prioritized endpoints
     @Test
+    @Order(2)
     void shouldGetHistory() throws IOException, InterruptedException {
         manager.getTask(task.getId());
         manager.getSubTask(subTask.getId());
@@ -479,6 +480,7 @@ class HttpTaskServerTest {
     }
 
     @Test
+    @Order(1)
     void shouldReturnEmptyHistoryWhenNoTasksViewed() throws IOException, InterruptedException {
         URI url = URI.create("http://localhost:8082/history");
         HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
