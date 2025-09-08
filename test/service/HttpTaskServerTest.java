@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import exception.NotFoundException;
 import model.*;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,24 +19,31 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskServerTest {
-    protected TaskManager manager;
-    protected HttpServer httpServer;
-    protected HttpTaskServer httpTaskServer;
-    protected Gson gson;
+    protected static TaskManager manager;
+    protected static HttpServer httpServer;
+    protected static HttpTaskServer httpTaskServer;
+    protected static Gson gson;
     protected HttpClient client;
     protected Task task, task2;
     protected SubTask subTask, subTask2, subTask3;
     protected Epic epic;
 
 
-    @BeforeEach
-    public void init() throws IOException {
+    @BeforeAll
+    public static void startServer() throws IOException {
         httpTaskServer = new HttpTaskServer();
         manager = httpTaskServer.getTaskManager();
         httpTaskServer.initialize();
-        gson = HttpTaskServer.getGson();
-        client = HttpClient.newHttpClient();
         httpTaskServer.startServer();
+        gson = HttpTaskServer.getGson();
+    }
+
+    @BeforeEach
+    public void init() throws IOException {
+        manager.deleteAllTasks();
+        manager.deleteAllEpics();
+        manager.deleteAllSubTasks();
+        client = HttpClient.newHttpClient();
 
         task = new Task("Erase",
                 "To erase data in Database",
@@ -90,8 +94,8 @@ class HttpTaskServerTest {
         manager.createSubTask(subTask3, epic2.getId());
     }
 
-    @AfterEach
-    public void stopServer() {
+    @AfterAll
+    public static void stopServer() {
         if (httpTaskServer != null) {
             httpTaskServer.stopServer();
         }
