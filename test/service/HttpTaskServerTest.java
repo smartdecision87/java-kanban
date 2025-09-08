@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class HttpTaskServerTest {
     protected static TaskManager manager;
     protected static HttpServer httpServer;
@@ -43,7 +44,6 @@ class HttpTaskServerTest {
         manager.deleteAllTasks();
         manager.deleteAllEpics();
         manager.deleteAllSubTasks();
-        manager.getHistory().clear();
         client = HttpClient.newHttpClient();
 
         task = new Task("Erase",
@@ -162,6 +162,7 @@ class HttpTaskServerTest {
     }
 
     @Test
+    @Order(2)
     void shouldUpdateTask() throws IOException, InterruptedException {
         Task task = manager.createTask(new Task("Test Task", "Test Description",
                 TaskStatus.NEW, Duration.ofMinutes(30),
@@ -283,6 +284,7 @@ class HttpTaskServerTest {
     }
 
     @Test
+    @Order(3)
     void shouldCreateEpic() throws IOException, InterruptedException {
         Epic epic = new Epic("New Epic", "Epic Description");
         String epicJson = gson.toJson(epic);
@@ -427,10 +429,11 @@ class HttpTaskServerTest {
 
     // Tests for /history and /prioritized endpoints
     @Test
-    @Order(2)
+    @Order(1)
     void shouldGetHistory() throws IOException, InterruptedException {
         manager.getTask(task.getId());
         manager.getSubTask(subTask.getId());
+        manager.getHistory().clear();
 
         URI url = URI.create("http://localhost:8082/history");
         HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
@@ -481,7 +484,7 @@ class HttpTaskServerTest {
     }
 
     @Test
-    @Order(1)
+    @Order(0)
     void shouldReturnEmptyHistoryWhenNoTasksViewed() throws IOException, InterruptedException {
         URI url = URI.create("http://localhost:8082/history");
         HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
