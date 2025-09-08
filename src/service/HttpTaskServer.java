@@ -37,6 +37,7 @@ public class HttpTaskServer {
     private static List<Task> tasks = new ArrayList<>();
     private static Gson gson;
     private static ErrorHandler errorHandler;
+    private boolean isRunning = false;
 
     public void initialize() throws IOException {
         if (httpServer == null) {
@@ -111,7 +112,6 @@ public class HttpTaskServer {
                 LocalDateTime.now().plusMinutes(44)
         );
         taskManager.createSubTask(subTask3, epic2.getId());
-        //httpServer.stop(1);
     }
 
 
@@ -368,13 +368,23 @@ public class HttpTaskServer {
     }
 
     public void startServer() {
-        httpServer.start();
-        System.out.println("Сервер запущен на порту " + PORT);
+        if (!isRunning) {
+            httpServer.start();
+            System.out.println("Сервер запущен на порту " + PORT);
+            isRunning = true;
+        }
     }
 
     public void stopServer() {
-        httpServer.stop(0);
-        System.out.println("Сервер остановлен");
+        if (!isRunning) {
+            httpServer.stop(0);
+            System.out.println("Сервер остановлен");
+            isRunning = false;
+        }
+    }
+
+    public HttpServer getServer() {
+        return httpServer;
     }
 
     static class BaseHttpHandler {

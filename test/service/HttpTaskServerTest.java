@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import exception.NotFoundException;
 import model.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ class HttpTaskServerTest {
     protected Task task, task2;
     protected SubTask subTask, subTask2, subTask3;
     protected Epic epic;
+
 
     @BeforeEach
     public void init() throws IOException {
@@ -95,12 +97,6 @@ class HttpTaskServerTest {
         }
     }
 
-    protected Task createTestTask() {
-        return new Task("Test Task", "Test Description",
-                TaskStatus.NEW, Duration.ofMinutes(30),
-                LocalDateTime.now().plusHours(1));
-    }
-
     @Test
     void shouldGetAllTasks() throws IOException, InterruptedException {
         URI url = URI.create("http://localhost:8082/tasks");
@@ -162,7 +158,9 @@ class HttpTaskServerTest {
 
     @Test
     void shouldUpdateTask() throws IOException, InterruptedException {
-        Task task = manager.createTask(createTestTask());
+        Task task = manager.createTask(new Task("Test Task", "Test Description",
+                TaskStatus.NEW, Duration.ofMinutes(30),
+                LocalDateTime.now().plusHours(1)));
         task.setName("Updated Task");
         task.setTaskStatus(TaskStatus.DONE);
 
