@@ -1,3 +1,6 @@
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.sun.net.httpserver.HttpServer;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -5,84 +8,68 @@ import model.TaskStatus;
 
 import service.*;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.http.HttpClient;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        final TaskManager manager;
+        final HttpTaskServer httpTaskServer;
+        final Task task, task2;
+        final SubTask subTask, subTask2, subTask3;
+        final Epic epic, epic2;
 
-        final TaskManager taskManager = Managers.getDefault();
+        httpTaskServer = new HttpTaskServer();
+        manager = httpTaskServer.getTaskManager();
+        httpTaskServer.initialize();
+        httpTaskServer.startServer();
 
-        // CREATE TASK
-        final Task task = new Task("Erase",
-                                    "To erase data in Database",
-                                    TaskStatus.NEW,
-                                    Duration.ofMinutes(10));
-        taskManager.createTask(task);
-        System.out.println("Task is created: " + task.getId());
-        System.out.println("Get task: " + task);
-        // UPDATE TASK
-        task.setTaskStatus(TaskStatus.IN_PROGRESS);
-        taskManager.updateTask(task);
-        System.out.println("Update task: " + task);
-        // DELETE TASK
-//       taskManager.deleteTask(task.getId());
-        System.out.println(taskManager.getAllTasks());
+        task = new Task("Erase",
+                "To erase data in Database",
+                TaskStatus.NEW,
+                Duration.ofMinutes(10),
+                LocalDateTime.now());
+        manager.createTask(task);
 
-        // CREATE EPIC AND ITS SUBTASKS
-        final Epic epic = new Epic("FOOD BUYING",
-                                    "To buy food in a supermarket"
-                                    );
-        taskManager.createEpic(epic);
-        final SubTask subTask = new SubTask("A call taxi",
-                                            "A call taxi for getting to supermarket",
-                                            TaskStatus.NEW,
-                                            Duration.ofMinutes(12)
-                                            );
-        taskManager.createSubTask(subTask, epic.getId());
-        final SubTask subTask2 = new SubTask("Carrot Buying",
-                                            "To buy a few carrots",
-                                            TaskStatus.NEW,
-                                            Duration.ofMinutes(14)
-                                            );
-        taskManager.createSubTask(subTask2, epic.getId());
-        System.out.println("Get Epic: " + epic);
-        System.out.println("Get Subtask: " + subTask);
-        System.out.println("Get Subtask2: " + subTask2);
-        System.out.println(taskManager.getAllEpics());
-        System.out.println(taskManager.getEpicAllSubTasks(epic.getId()));
-        // CHANGING EPIC STATUS
-        System.out.println(InMemoryTaskManager.GREEN + "\t\tCHANGING EPIC STATUS" + InMemoryTaskManager.RESET);
-        subTask.setTaskStatus(TaskStatus.DONE);
-        taskManager.updateSubTask(subTask);
-        subTask2.setTaskStatus(TaskStatus.DONE);
-        taskManager.updateSubTask(subTask2);
-        System.out.println("EPIC Status:");
-        System.out.println("Get Epic: " + epic);
-        System.out.println("Get Subtask: " + subTask);
-        System.out.println("Get Subtask2: " + subTask2);
+        task2 = new Task("Add",
+                "To add data in Database",
+                TaskStatus.NEW,
+                Duration.ofMinutes(15),
+                LocalDateTime.now().plusMinutes(10));
+        manager.createTask(task2);
 
-        // Delete all subtask of epic and check epicstatus
-        System.out.println(taskManager.getAllEpics());
-        System.out.println(taskManager.getAllSubTasks());
+        epic = new Epic("FOOD BUYING","To buy food in a supermarket");
+        manager.createEpic(epic);
 
-        taskManager.getTask(task.getId());
-        taskManager.getEpic(epic.getId());
-        taskManager.getEpic(epic.getId());
-        taskManager.getSubTask(subTask2.getId());
-        taskManager.getSubTask(subTask.getId());
-        taskManager.getEpic(epic.getId());
-        taskManager.getTask(task.getId());
-        taskManager.getSubTask(subTask.getId());
-        taskManager.getSubTask(subTask.getId());
-        taskManager.getTask(task.getId());
-        taskManager.getSubTask(subTask2.getId());
-        taskManager.getTask(task.getId());
-        taskManager.getEpic(epic.getId());
+        subTask = new SubTask("A call taxi",
+                "A call taxi for getting to supermarket",
+                TaskStatus.NEW,
+                Duration.ofMinutes(7),
+                LocalDateTime.now().plusMinutes(25)
+        );
+        manager.createSubTask(subTask, epic.getId());
 
-        int i = 1;
-        for (Task t : taskManager.getHistory()) {
-            System.out.println(i++ + " " + t);
-        }
+        epic2 = new Epic("CAR BUYING","To buy a car");
+        manager.createEpic(epic2);
+
+        subTask2 = new SubTask("A call taxi",
+                "A call taxi for getting to supermarket",
+                TaskStatus.NEW,
+                Duration.ofMinutes(12),
+                LocalDateTime.now().plusMinutes(32)
+        );
+        manager.createSubTask(subTask2, epic2.getId());
+
+        subTask3 = new SubTask("A call taxi",
+                "A call taxi for getting to supermarket",
+                TaskStatus.NEW,
+                Duration.ofMinutes(5),
+                LocalDateTime.now().plusMinutes(44)
+        );
+        manager.createSubTask(subTask3, epic2.getId());
     }
 }

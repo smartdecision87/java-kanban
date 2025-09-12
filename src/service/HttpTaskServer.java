@@ -14,12 +14,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
-import exception.ManagerSaveException;
-import exception.NotFoundException;
-import exception.OverlapsException;
 import model.Epic;
 import model.SubTask;
-import model.TaskStatus;
 import model.Task;
 
 import java.time.Duration;
@@ -39,6 +35,26 @@ public class HttpTaskServer {
     private static ErrorHandler errorHandler;
     private boolean isRunning = false;
 
+    public enum HttpStatus {
+        OK(200),
+        CREATED(201),
+        BAD_REQUEST(400),
+        NOT_FOUND(404),
+        OVERLAPS_ERROR(406),
+        INTERNAL_SERVER_ERROR(500),
+        UNKNOWN_ERROR(520);
+
+        private final int code;
+
+        HttpStatus(int code) {
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
+
     public void initialize() throws IOException {
         if (httpServer == null) {
             httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -55,78 +71,18 @@ public class HttpTaskServer {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
-        httpServer.start();
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .create();
-        httpServer.createContext("/tasks", new TaskHandler());
-        httpServer.createContext("/subtasks", new SubtaskHandler());
-        httpServer.createContext("/epics", new EpicHandler());
-        httpServer.createContext("/history", new HistoryHandler());
-        httpServer.createContext("/prioritized", new PrioritizedHandler());
-        errorHandler = new ErrorHandler();
-
-        final Task task = new Task("Erase",
-                "To erase data in Database",
-                TaskStatus.NEW,
-                Duration.ofMinutes(10),
-                LocalDateTime.now());
-        taskManager.createTask(task);
-
-        final Task task2 = new Task("Add",
-                "To add data in Database",
-                TaskStatus.NEW,
-                Duration.ofMinutes(15),
-                LocalDateTime.now().plusMinutes(10));
-        taskManager.createTask(task2);
-
-        final Epic epic = new Epic("FOOD BUYING","To buy food in a supermarket");
-        taskManager.createEpic(epic);
-
-        final SubTask subTask = new SubTask("A call taxi",
-                "A call taxi for getting to supermarket",
-                TaskStatus.NEW,
-                Duration.ofMinutes(7),
-                LocalDateTime.now().plusMinutes(25)
-        );
-        taskManager.createSubTask(subTask, epic.getId());
-
-        final Epic epic2 = new Epic("CAR BUYING","To buy a car");
-        taskManager.createEpic(epic2);
-
-        final SubTask subTask2 = new SubTask("A call taxi",
-                "A call taxi for getting to supermarket",
-                TaskStatus.NEW,
-                Duration.ofMinutes(12),
-                LocalDateTime.now().plusMinutes(32)
-        );
-        taskManager.createSubTask(subTask2, epic2.getId());
-
-        final SubTask subTask3 = new SubTask("A call taxi",
-                "A call taxi for getting to supermarket",
-                TaskStatus.NEW,
-                Duration.ofMinutes(5),
-                LocalDateTime.now().plusMinutes(44)
-        );
-        taskManager.createSubTask(subTask3, epic2.getId());
-    }
-
-
     public static class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
-        private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         @Override
         public void write(JsonWriter jsonWriter, LocalDateTime localDateTime) throws IOException {
             if (localDateTime == null) jsonWriter.nullValue();
-            jsonWriter.value(localDateTime.format(formatter));
+            jsonWriter.value(localDateTime.format(FORMATTER));
         }
 
         @Override
         public LocalDateTime read(JsonReader jsonReader) throws IOException {
-            return LocalDateTime.parse(jsonReader.nextString(), formatter);
+            return LocalDateTime.parse(jsonReader.nextString(), FORMATTER);
         }
     }
 
@@ -391,7 +347,7 @@ public class HttpTaskServer {
         protected void sendText(HttpExchange httpExchange, String text) throws IOException {
             byte[] response = text.getBytes(StandardCharsets.UTF_8);
             httpExchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
-            httpExchange.sendResponseHeaders(200, response.length);
+            httpExchange.sendResponseHeaders(HttpStatus.OK.getCode(), response.length);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response);
             }
@@ -400,7 +356,7 @@ public class HttpTaskServer {
         protected void sendCreated(HttpExchange httpExchange, String text) throws IOException {
             byte[] response = text.getBytes(StandardCharsets.UTF_8);
             httpExchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
-            httpExchange.sendResponseHeaders(201, response.length);
+            httpExchange.sendResponseHeaders(HttpStatus.CREATED.getCode(), response.length);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response);
             }
@@ -409,34 +365,9 @@ public class HttpTaskServer {
         protected void sendInvalidQuery(HttpExchange httpExchange, String text) throws IOException {
             byte[] response = text.getBytes(StandardCharsets.UTF_8);
             httpExchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
-            httpExchange.sendResponseHeaders(400, response.length);
+            httpExchange.sendResponseHeaders(HttpStatus.BAD_REQUEST.getCode(), response.length);
             try (OutputStream os = httpExchange.getResponseBody()) {
                 os.write(response);
-            }
-        }
-    }
-
-    static class ErrorHandler {
-        public void handle(HttpExchange h, Exception e) throws IOException {
-            int statusCode = 520;
-            String text = "";
-            try {
-                if (e instanceof ManagerSaveException) {
-                    statusCode = 500;
-                }
-                if (e instanceof OverlapsException) {
-                    statusCode = 406;
-                }
-                if (e instanceof NotFoundException) {
-                    statusCode = 404;
-                }
-                byte[] resp = e.getMessage().getBytes(StandardCharsets.UTF_8);
-                h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
-                h.sendResponseHeaders(statusCode, resp.length);
-                h.getResponseBody().write(resp);
-                h.close();
-            } catch (Exception err) {
-                err.printStackTrace();
             }
         }
     }

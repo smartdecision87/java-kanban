@@ -14,7 +14,6 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks;
     protected final HashMap<Integer, Epic> epics;
     protected final HashMap<Integer, SubTask> subTasks;
-    protected final TreeSet<Task> sortedTasks;
     protected int id;
     protected final HistoryManager historyManager;
     public static final String RED = "\033[0;31m";
@@ -25,7 +24,6 @@ public class InMemoryTaskManager implements TaskManager {
         tasks = new HashMap<>();
         epics = new HashMap<>();
         subTasks = new HashMap<>();
-        sortedTasks = new TreeSet<>();
         this.historyManager = historyManager;
         id = 0;
     }

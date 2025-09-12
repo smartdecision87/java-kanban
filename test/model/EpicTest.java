@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -20,10 +21,10 @@ class EpicTest {
     void initEpic() {
        epic = new Epic( "FOOD BUYING", "To buy food in a supermarket");
        subTask1 = new SubTask("A call taxi","A call taxi for getting to supermarket", TaskStatus.NEW,
-                                Duration.ofMinutes(3)
+                                Duration.ofMinutes(3), LocalDateTime.now()
        );
        subTask2 = new SubTask("Carrot Buying","To buy a few carrots", TaskStatus.NEW,
-                                Duration.ofMinutes(10)
+                                Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(3)
        );
        subTask1.setId(1);
        subTask2.setId(2);

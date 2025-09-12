@@ -1,6 +1,7 @@
 package service;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import model.Task;
 import model.TaskStatus;
@@ -19,18 +20,21 @@ class InMemoryHistoryManagerTest {
     void init() {
         historyManager = new InMemoryHistoryManager();
         newTask = new Task("The first task", "To do the first task",
-                            TaskStatus.NEW, Duration.ofMinutes(3));
+                            TaskStatus.NEW, Duration.ofMinutes(3), LocalDateTime.now());
         newTask2 = new Task("The second task", "To do the second task",
-                            TaskStatus.NEW, Duration.ofMinutes(2));
+                            TaskStatus.NEW, Duration.ofMinutes(2), LocalDateTime.now().plusMinutes(3));
         newTask3 = new Task("The third task", "To do the third task",
-                            TaskStatus.NEW, Duration.ofMinutes(5));
+                            TaskStatus.NEW, Duration.ofMinutes(5), LocalDateTime.now().plusMinutes(5));
         newTask.setId(0);
         newTask2.setId(1);
         newTask3.setId(2);
 
-        task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10));
-        task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20));
-        task3 = new Task("Task3", "Desc3", TaskStatus.NEW, Duration.ofMinutes(30));
+        task1 = new Task("Task1", "Desc1", TaskStatus.NEW, Duration.ofMinutes(10),
+                LocalDateTime.now().plusMinutes(10));
+        task2 = new Task("Task2", "Desc2", TaskStatus.NEW, Duration.ofMinutes(20),
+                LocalDateTime.now().plusMinutes(20));
+        task3 = new Task("Task3", "Desc3", TaskStatus.NEW, Duration.ofMinutes(30),
+                LocalDateTime.now().plusMinutes(40));
         task1.setId(3);
         task2.setId(4);
         task3.setId(5);

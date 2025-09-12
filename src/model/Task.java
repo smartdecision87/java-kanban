@@ -12,12 +12,13 @@ public class Task implements Comparable<Task> {
     protected Duration duration;
     protected LocalDateTime startTime;
 
-    public Task(String name, String description, TaskStatus taskStatus, Duration duration) {
-        this.name = name;
-        this.description = description;
-        this.taskStatus = taskStatus;
-        this.duration = duration;
-    }
+/*    Сделал в соответствии с ТЗ 8, которое рекомендует для удобства в Epic добавить поле EndTime, только для него и
+    пожеланию. Ниже выдержка из ТЗ 8:
+    "... А вот с классом Epic нужно поработать дополнительно.
+    Продолжительность эпика — сумма продолжительностей всех его подзадач.
+    Время начала — дата старта самой ранней подзадачи, а время завершения — время окончания самой поздней из задач.
+    Новые поля duration и startTime этого класса будут расчётные — аналогично полю «статус».
+    Для реализации getEndTime() удобно добавить поле endTime в Epic и рассчитать его вместе с другими полями." */
 
     public Task(String name, String description, TaskStatus taskStatus, Duration duration, LocalDateTime startTime) {
         this.name = name;
@@ -62,7 +63,6 @@ public class Task implements Comparable<Task> {
     public Duration getDuration() {
         return duration;
     }
-
 
     public void setDuration(Duration duration) {
         this.duration = duration;
