@@ -1,17 +1,31 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task> {
     private int id;
-    private String name;
-    private String description;
-    private TaskStatus taskStatus;
+    protected String name;
+    protected String description;
+    protected TaskStatus taskStatus;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(String name, String description, TaskStatus taskStatus) {
+/*    Сделал в соответствии с ТЗ 8, которое рекомендует для удобства в Epic добавить поле EndTime, только для него и
+    пожеланию. Ниже выдержка из ТЗ 8:
+    "... А вот с классом Epic нужно поработать дополнительно.
+    Продолжительность эпика — сумма продолжительностей всех его подзадач.
+    Время начала — дата старта самой ранней подзадачи, а время завершения — время окончания самой поздней из задач.
+    Новые поля duration и startTime этого класса будут расчётные — аналогично полю «статус».
+    Для реализации getEndTime() удобно добавить поле endTime в Epic и рассчитать его вместе с другими полями." */
+
+    public Task(String name, String description, TaskStatus taskStatus, Duration duration, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.taskStatus = taskStatus;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public int getId() {
@@ -46,6 +60,25 @@ public class Task {
         this.description = description;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null) {
+            return null;
+        }
+        return startTime.plusMinutes(duration.toMinutes());
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -67,5 +100,13 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description, taskStatus);
+    }
+
+    @Override
+    public int compareTo(Task otherTask) {
+        if (this == otherTask) return 0;
+        if (otherTask == null) return 1;
+        if (this.getStartTime() == null || otherTask.getStartTime() == null) return 0;
+        return this.getStartTime().compareTo(otherTask.getStartTime());
     }
 }

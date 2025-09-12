@@ -1,17 +1,32 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Epic extends Task {
     private final ArrayList<Integer> subTaskIds = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
-        super(name, description, TaskStatus.NEW);
+        super(name, description, TaskStatus.NEW, Duration.ZERO, LocalDateTime.now());
+        endTime = LocalDateTime.now();
     }
 
     public ArrayList<Integer> getAllSubTaskIds() {
         return subTaskIds;
+    }
+
+    public void computeDuration(HashMap<Integer, SubTask> subTasks) {
+        Duration maxDuration = Duration.ZERO;
+
+        for (Integer id: subTasks.keySet()) {
+            maxDuration = maxDuration.plusMinutes(subTasks.get(id).getDuration().toMinutes());
+        }
+
+        duration = maxDuration;
     }
 
     public void addSubTask(int subTaskId) {
@@ -47,6 +62,31 @@ public class Epic extends Task {
 
     public void deleteAllSubTasks() {
         subTaskIds.clear();
+        duration = Duration.ZERO;
+        startTime = null;
+        endTime = null;
+    }
+
+    public LocalDateTime getEndTime()  {
+        return endTime;
+    }
+
+    public void computeStartTime(Map<Integer, SubTask> subTasks) {
+        startTime = subTaskIds.stream()
+                .map(subTasks::get)
+                .filter(s -> s.getStartTime() != null)
+                .map(SubTask::getStartTime)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
+    public void computeEndTime(Map<Integer, SubTask> subTasks) {
+        endTime = subTaskIds.stream()
+                .map(subTasks::get)
+                .filter(s -> s.getEndTime() != null)
+                .map(SubTask::getEndTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
     }
 
     @Override
